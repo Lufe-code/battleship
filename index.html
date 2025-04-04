@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Battleship - Jugador vs Computadora</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+    table { border-collapse: collapse; margin: 10px auto; }
+    td { width: 30px; height: 30px; border: 1px solid #333; cursor: pointer; }
+    .water { background-color: #87ceeb; }
+    .ship { background-color: #555; }
+    .hit { background-color: red; color: white; }
+    .miss { background-color: #ccc; }
+    .disabled { pointer-events: none; }
+  </style>
+</head>
+<body>
+  <h1>Battleship - Jugador vs Computadora</h1>
+  <div>
+    <label for="boardSize">Tamaño del tablero (10-20):</label>
+    <input type="number" id="boardSize" min="10" max="20" value="10">
+    <button onclick="setupPlayerBoard()">Colocar Barcos</button>
+    <button onclick="startGame()" disabled id="startBtn">Iniciar Juego</button>
+  </div>
+  <h2>Tu Tablero</h2>
+  <div id="playerBoard"></div>
+  <h2>Tablero del Enemigo</h2>
+  <div id="enemyBoard"></div>
+
+  <script src="/src/javascript/battleship.js"></script>
+</body>
+</html>

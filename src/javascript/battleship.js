@@ -139,7 +139,35 @@ function handlePlayerTurn(e) {
   if (allShipsSunk(computerBoard)) {
     alert('¡Ganaste!');
   }
+
+  setTimeout(() => {
+    computerTurn();
+  }, 500);
+  
 }
+
+function computerTurn() {
+  let row, col;
+  do {
+    row = Math.floor(Math.random() * size);
+    col = Math.floor(Math.random() * size);
+  } while (playerBoard[row][col] === 'X' || playerBoard[row][col] === 'O');
+
+  if (playerBoard[row][col] === 'S') {
+    playerBoard[row][col] = 'X';
+    alert('¡La computadora acertó en uno de tus barcos!');
+  } else {
+    playerBoard[row][col] = 'O';
+    alert('La computadora falló.');
+  }
+
+  renderBoard(playerBoard, 'playerBoard', null, true);
+
+  if (allShipsSunk(playerBoard)) {
+    alert('¡Perdiste! La computadora hundió todos tus barcos.');
+  }
+}
+
 
 function allShipsSunk(board) {
   return board.every(row => row.every(cell => cell !== 'S'));

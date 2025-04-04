@@ -4,7 +4,7 @@ let size;  // Tamaño del tablero definido por el jugador
 let playerBoard = [];  // Tablero del jugador (con barcos)
 let computerBoard = [];  // Tablero de la computadora (con barcos)
 let enemyVisibleBoard = [];  // Tablero visible del enemigo para el jugador (oculta barcos no golpeados)
-let shipsToPlace = [5, 4, 3, 3, 2]; // Lista de tamaños de barcos a colocar
+let shipsToPlace = [5, 4, 3, 3, 2, 2]; // Lista de tamaños de barcos a colocar
 let currentShip = 0;  // Índice del barco actual que se está colocando
 let placingDirection = 'horizontal';  // Dirección por defecto al colocar barcos
 let playerShips = [];  // lista de barcos destruidos del jugador
@@ -271,6 +271,7 @@ function computerTurn() {
   
 }
 
+// verifica si se ha destruido un barco
 function checkIfShipSunk(shipList, row, col) {
   for (let ship of shipList) {
     if (ship.positions.some(pos => pos.row === row && pos.col === col)) {
@@ -282,6 +283,35 @@ function checkIfShipSunk(shipList, row, col) {
   }
   return false;
 }
+
+// combierte el tablero a matrix
+function boardToTextMatrix(board) {
+  return board.map(row =>
+    row.map(cell => (cell === 'S' ? '1' : '0')).join(' ')
+  ).join('\n');
+}
+
+// funcion para descarga un archivo
+function downloadTextFile(content, filename) {
+  const blob = new Blob([content], { type: 'text/plain' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+}
+
+// funcion para exportar mapa del jugador
+function exportPlayerBoard() {
+  const matrixText = boardToTextMatrix(playerBoard);
+  downloadTextFile(matrixText, 'player_board.txt');
+}
+
+// funcion para exportar mapa de la maquina
+function exportComputerBoard() {
+  const matrixText = boardToTextMatrix(computerBoard);
+  downloadTextFile(matrixText, 'computer_board.txt');
+}
+
 
 /*
 Verifica si todos los barcos de un tablero han sido hundidos (ya no quedan 'S').

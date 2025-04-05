@@ -9,6 +9,7 @@ let currentShip = 0;  // Índice del barco actual que se está colocando
 let placingDirection = 'horizontal';  // Dirección por defecto al colocar barcos
 let playerShips = [];  // lista de barcos destruidos del jugador
 let computerShips = [];  // lista de barcos destruidos de la computadora
+let playerScore = 0;  // Puntaje del jugador
 
 const climasPorUbicacion = {
   "Mar Caribe": "🌤️ Soleado con brisa suave, 28°C",
@@ -244,27 +245,39 @@ function handlePlayerTurn(e) {
   if (computerBoard[row][col] === 'S') {
     enemyVisibleBoard[row][col] = 'X';
     computerBoard[row][col] = 'X';
+    playerScore += 10; // ✅ Acierto = +10 puntos
 
     if (checkIfShipSunk(computerShips, row, col)) {
       alert('¡Hundiste un barco enemigo!');
     } else {
       alert('¡Impacto!');
     }
+
   } else {
+    // ❌ Fallo: comprobar si fue cerca de un barco
+    if (isNearShip(computerBoard, row, col)) {
+      playerScore -= 3;
+      alert('Casi le das... pero fue un fallo. (-3 puntos)');
+    } else {
+      playerScore -= 1;
+      alert('Agua. (-1 punto)');
+    }
+
     enemyVisibleBoard[row][col] = 'O';
-    alert('Agua.');
   }
 
   renderBoard(enemyVisibleBoard, 'enemyBoard', handlePlayerTurn);
+
   if (allShipsSunk(computerBoard)) {
-    alert('¡Ganaste!');
+    alert(`¡Ganaste!\nPuntaje final: ${playerScore}`);
+    return;
   }
 
   setTimeout(() => {
     computerTurn();
   }, 500);
-
 }
+
 
 /*
 La computadora ataca:
@@ -302,9 +315,9 @@ function computerTurn() {
   renderBoard(playerBoard, 'playerBoard', null, true);
 
   if (allShipsSunk(playerBoard)) {
-    alert('¡Perdiste! La computadora hundió todos tus barcos.');
+    alert(`¡Perdiste! La computadora hundió todos tus barcos.\nTu puntaje final fue: ${playerScore}`);
   }
-
+  
   if (playerBoard[row][col] === 'S') {
     playerBoard[row][col] = 'X';
   
@@ -393,6 +406,24 @@ async function cargarPaises() {
   }
 }
 
+// abyacencia de disparos
+function isNearShip(board, row, col) {
+  for (let dr = -1; dr <= 1; dr++) {
+    for (let dc = -1; dc <= 1; dc++) {
+      if (dr === 0 && dc === 0) continue;  // ignorar la misma celda
+      const nr = row + dr;
+      const nc = col + dc;
+      if (
+        nr >= 0 && nr < size &&
+        nc >= 0 && nc < size &&
+        board[nr][nc] === 'S'
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
 
 
 /*

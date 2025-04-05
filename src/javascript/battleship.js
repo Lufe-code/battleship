@@ -57,6 +57,7 @@ Llama a renderBoard() para mostrarlo.
 Inicia la colocación de barcos.
 */
 function setupPlayerBoard() {
+  actualizarNombreJugador();
   size = parseInt(document.getElementById('boardSize').value);
   if (isNaN(size) || size < MIN_SIZE || size > MAX_SIZE) {
     alert(`El tamaño debe ser entre ${MIN_SIZE} y ${MAX_SIZE}`);
@@ -312,6 +313,17 @@ function exportComputerBoard() {
   downloadTextFile(matrixText, 'computer_board.txt');
 }
 
+// nombre del jugador
+function actualizarNombreJugador() {
+  const nombre = document.getElementById('playerName').value.trim();
+  const titulo = document.getElementById('playerBoardTitle');
+
+  if (nombre) {
+    titulo.textContent = `Tablero de ${nombre}`;
+  } else {
+    titulo.textContent = 'Tu Tablero';
+  }
+}
 
 /*
 Verifica si todos los barcos de un tablero han sido hundidos (ya no quedan 'S').

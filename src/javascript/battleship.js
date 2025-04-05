@@ -10,6 +10,16 @@ let placingDirection = 'horizontal';  // Dirección por defecto al colocar barco
 let playerShips = [];  // lista de barcos destruidos del jugador
 let computerShips = [];  // lista de barcos destruidos de la computadora
 
+const climasPorUbicacion = {
+  "Mar Caribe": "🌤️ Soleado con brisa suave, 28°C",
+  "Océano Atlántico": "🌧️ Lluvia moderada y oleaje fuerte, 22°C",
+  "Océano Pacífico": "🌊 Oleaje intenso y cielo nublado, 19°C",
+  "Mar Mediterráneo": "☀️ Soleado y cálido, 25°C",
+  "Mar del Norte": "❄️ Niebla y temperaturas bajas, 10°C",
+  "Océano Índico": "🌦️ Lluvias dispersas y humedad alta, 27°C"
+};
+
+
 function createBoard(size) {  // crea la matriz para el juego
   return Array.from({ length: size }, () => Array(size).fill('~'));
 }
@@ -106,14 +116,35 @@ document.getElementById('playerBoard').addEventListener('dblclick', () => {
 
 // Verifica si el barco cabe en la posición y dirección dadas sin chocar con otro ni salirse del tablero.
 function canPlaceShip(board, row, col, length, direction) {
-  if (direction === 'horizontal') {
-    if (col + length > size) return false;
-    return board[row].slice(col, col + length).every(cell => cell === '~');
-  } else {
-    if (row + length > size) return false;
-    return board.slice(row, row + length).every(r => r[col] === '~');
+  const isHorizontal = direction === 'horizontal';
+
+  for (let i = 0; i < length; i++) {
+    const r = isHorizontal ? row : row + i;
+    const c = isHorizontal ? col + i : col;
+
+    // Verifica si se sale del tablero
+    if (r < 0 || r >= size || c < 0 || c >= size) return false;
+
+    // Verifica si la casilla o las adyacentes ya tienen un barco
+    for (let dr = -1; dr <= 1; dr++) {
+      for (let dc = -1; dc <= 1; dc++) {
+        const nr = r + dr;
+        const nc = c + dc;
+
+        if (
+          nr >= 0 && nr < size &&
+          nc >= 0 && nc < size &&
+          board[nr][nc] === 'S'
+        ) {
+          return false;
+        }
+      }
+    }
   }
+
+  return true;
 }
+
 
 // Coloca un barco en el tablero reemplazando ~ por 'S' en la dirección dada (horizontal o vertical).
 function placeShip(board, row, col, length, direction, shipList) {
@@ -161,13 +192,27 @@ Crea un tablero visible del enemigo (oculta los barcos no golpeados).
 Muestra ambos tableros.
 */
 function startGame() {
-  computerBoard = createBoard(size);
-  enemyVisibleBoard = createBoard(size);
-  for (let len of shipsToPlace) {
-    placeShipRandomly(computerBoard, len, computerShips);
+  const name = document.getElementById('playerName').value.trim();
+  const country = document.getElementById('playerCountry').value;
+  const location = document.getElementById('playerLocation').value.trim();
+
+  if (!(name && country && location)) {
+    alert('Por favor, completa tu nombre, país y ubicación antes de comenzar.');
+    return;
+  }
+  else{
+
+    const clima = climasPorUbicacion[location] || "🌍 Clima no disponible";
+    climaInfo.textContent = `Condiciones climáticas en ${location}: ${clima}`;
+
+    computerBoard = createBoard(size);
+    enemyVisibleBoard = createBoard(size);
+    for (let len of shipsToPlace) {
+       placeShipRandomly(computerBoard, len, computerShips);
   }
   renderBoard(enemyVisibleBoard, 'enemyBoard', handlePlayerTurn);
   renderBoard(playerBoard, 'playerBoard', null, true);
+  }
 }
 
 /*

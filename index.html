@@ -20,6 +20,20 @@
           <select id="playerCountry" class="form-select form-control w-auto d-inline-block">
             <option selected disabled>Cargando países...</option>
           </select>
+          
+          <label for="playerLocation" class="form-label text-white mt-2">Ubicación de la Batalla:</label>
+            <select id="playerLocation" class="form-select form-control w-auto d-inline-block">
+              <option selected disabled>Selecciona Ubicación</option>
+              <option value="Mar Caribe">Mar Caribe</option>
+              <option value="Mar Mediterráneo">Mar Mediterráneo</option>
+              <option value="Océano Atlántico">Océano Atlántico</option>
+              <option value="Océano Pacífico">Océano Pacífico</option>
+              <option value="Océano Índico">Océano Índico</option>
+              <option value="Mar de Japón">Mar de Japón</option>
+              <option value="Mar Báltico">Mar Báltico</option>
+              <option value="Mar de China Meridional">Mar de China Meridional</option>
+            </select>
+
         </div>    
       <div class="card-body d-flex flex-column flex-md-row align-items-center justify-content-center gap-3">
         <label for="boardSize" class="form-label mb-0 text-white">Tamaño del tablero:</label>
@@ -41,6 +55,8 @@
         <button onclick="startGame()" disabled id="startBtn" class="btn btn-success">Iniciar Juego</button>
       </div>
     </div> 
+
+    <p id="climaInfo" class="text-white text-center mt-3"></p>
 
     <div class="row justify-content-center mb-4">
       <div class="col-md-6 mb-3">

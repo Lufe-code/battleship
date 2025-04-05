@@ -325,9 +325,38 @@ function actualizarNombreJugador() {
   }
 }
 
+// cargar los paises de la api
+async function cargarPaises() {
+  const select = document.getElementById('playerCountry');
+  try {
+    const response = await fetch('/src/data/paises.json');
+    if (!response.ok) throw new Error('Error en la respuesta');
+
+    const data = await response.json();
+    const countries = Object.values(data).map(c => c.name).sort();
+
+    select.innerHTML = '<option selected disabled>Selecciona un país</option>';
+    countries.forEach(pais => {
+      const option = document.createElement('option');
+      option.value = pais;
+      option.textContent = pais;
+      select.appendChild(option);
+    });
+  } catch (error) {
+    console.error('Error al cargar países:', error);
+    select.innerHTML = '<option selected disabled>Error al cargar países</option>';
+  }
+}
+
+
+
 /*
 Verifica si todos los barcos de un tablero han sido hundidos (ya no quedan 'S').
 */
 function allShipsSunk(board) {
   return board.every(row => row.every(cell => cell !== 'S'));
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  cargarPaises();
+});

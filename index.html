@@ -9,14 +9,19 @@
 </head>
 <body class="bg-light">
 
-  <div class="container py-5">
+  <div class="container py-5 " onload="cargarPaises()">
     <h1 class="text-center mb-4">🎯 Battleship - Jugador vs Computadora</h1>
 
     <div class="card mb-4 shadow-sm">
-          
       <div class="card-body d-flex flex-column flex-md-row align-items-center justify-content-center gap-3">
         <label for="playerName" class="form-label text-white text-center ">Nombre del jugador:</label>
         <input type="text" id="playerName" class="form-control w-auto d-inline-block text-center " placeholder="Escribe tu nombre" />
+        <label for="playerCountry" class="form-label text-white mt-2">País del jugador:</label>
+          <select id="playerCountry" class="form-select form-control w-auto d-inline-block">
+            <option selected disabled>Cargando países...</option>
+          </select>
+        </div>    
+      <div class="card-body d-flex flex-column flex-md-row align-items-center justify-content-center gap-3">
         <label for="boardSize" class="form-label mb-0 text-white">Tamaño del tablero:</label>
           <select id="boardSize" class="form-select w-auto">
           <option value="10">10 x 10</option>

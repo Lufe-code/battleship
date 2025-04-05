@@ -9,20 +9,30 @@
 </head>
 <body class="bg-light">
 
-  <div class="container py-5 " onload="cargarPaises()">
+  <div class="container py-5">
     <h1 class="text-center mb-4">🎯 Battleship - Jugador vs Computadora</h1>
 
     <div class="card mb-4 shadow-sm">
-      <div class="card-body d-flex flex-column flex-md-row align-items-center justify-content-center gap-3">
-        <label for="playerName" class="form-label text-white text-center ">Nombre del jugador:</label>
-        <input type="text" id="playerName" class="form-control w-auto d-inline-block text-center " placeholder="Escribe tu nombre" />
-        <label for="playerCountry" class="form-label text-white mt-2">País del jugador:</label>
-          <select id="playerCountry" class="form-select form-control w-auto d-inline-block">
-            <option selected disabled>Cargando países...</option>
-          </select>
-          
-          <label for="playerLocation" class="form-label text-white mt-2">Ubicación de la Batalla:</label>
-            <select id="playerLocation" class="form-select form-control w-auto d-inline-block">
+      <div class="card-body">
+        <div class="row gy-3 gx-2 justify-content-center">
+          <!-- Nombre del jugador -->
+          <div class="col-12 col-sm-6 col-md-4 text-center">
+            <label for="playerName" class="form-label text-white">Nombre del jugador:</label>
+            <input type="text" id="playerName" class="form-control text-center" placeholder="Escribe tu nombre" />
+          </div>
+
+          <!-- País del jugador -->
+          <div class="col-12 col-sm-6 col-md-4 text-center">
+            <label for="playerCountry" class="form-label text-white">País del jugador:</label>
+            <select id="playerCountry" class="form-control text-center">
+              <option selected disabled>Cargando países...</option>
+            </select>
+          </div>
+
+          <!-- Ubicación -->
+          <div class="col-12 col-sm-6 col-md-4 text-center">
+            <label for="playerLocation" class="form-label text-white">Ubicación de la Batalla:</label>
+            <select id="playerLocation" class="form-control text-center">
               <option selected disabled>Selecciona Ubicación</option>
               <option value="Mar Caribe">Mar Caribe</option>
               <option value="Mar Mediterráneo">Mar Mediterráneo</option>
@@ -33,28 +43,40 @@
               <option value="Mar Báltico">Mar Báltico</option>
               <option value="Mar de China Meridional">Mar de China Meridional</option>
             </select>
-
-        </div>    
-      <div class="card-body d-flex flex-column flex-md-row align-items-center justify-content-center gap-3">
-        <label for="boardSize" class="form-label mb-0 text-white">Tamaño del tablero:</label>
-          <select id="boardSize" class="form-select w-auto">
-          <option value="10">10 x 10</option>
-          <option value="11">11 x 11</option>
-          <option value="12">12 x 12</option>
-          <option value="13">13 x 13</option>
-          <option value="14">14 x 14</option>
-          <option value="15">15 x 15</option>
-          <option value="16">16 x 16</option>
-          <option value="17">17 x 17</option>
-          <option value="18">18 x 18</option>
-          <option value="19">19 x 19</option>
-          <option value="20">20 x 20</option>
-        </select>
-
-        <button onclick="setupPlayerBoard()" class="btn btn-primary">Colocar Barcos</button>
-        <button onclick="startGame()" disabled id="startBtn" class="btn btn-success">Iniciar Juego</button>
+          </div>
+        </div>
       </div>
-    </div> 
+
+      <div class="card-body">
+        <div class="row gy-3 gx-2 justify-content-center align-items-center">
+          <!-- Tamaño del tablero -->
+          <div class="col-12 col-sm-6 col-md-4 text-center">
+            <label for="boardSize" class="form-label text-white mb-0">Tamaño del tablero:</label>
+            <select id="boardSize" class="form-control text-center">
+              <option value="10">10 x 10</option>
+              <option value="11">11 x 11</option>
+              <option value="12">12 x 12</option>
+              <option value="13">13 x 13</option>
+              <option value="14">14 x 14</option>
+              <option value="15">15 x 15</option>
+              <option value="16">16 x 16</option>
+              <option value="17">17 x 17</option>
+              <option value="18">18 x 18</option>
+              <option value="19">19 x 19</option>
+              <option value="20">20 x 20</option>
+            </select>
+          </div>
+
+          <!-- Botones -->
+          <div class="col-12 col-sm-6 col-md-3 text-center">
+            <button onclick="setupPlayerBoard()" class="btn btn-primary w-100">Colocar Barcos</button>
+          </div>
+          <div class="col-12 col-sm-6 col-md-3 text-center">
+            <button onclick="startGame()" disabled id="startBtn" class="btn btn-success w-100">Iniciar Juego</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <p id="climaInfo" class="text-white text-center mt-3"></p>
 
@@ -62,7 +84,7 @@
       <div class="col-md-6 mb-3">
         <div class="card shadow-sm">
           <div class="card-body text-center">
-            <h2 class="h5 mb-3 " id="playerBoardTitle" >Tu Tablero</h2>
+            <h2 class="h5 mb-3" id="playerBoardTitle">Tu Tablero</h2>
             <div id="playerBoard"></div>
           </div>
         </div>
@@ -78,8 +100,8 @@
     </div>
 
     <div class="text-center">
-        <button onclick="exportPlayerBoard()" class="btn btn-light me-2">Exportar mapa del jugador</button>
-        <button onclick="exportComputerBoard()" class="btn btn-light">Exportar mapa de la computadora</button>        
+      <button onclick="exportPlayerBoard()" class="btn btn-light me-2">Exportar mapa del jugador</button>
+      <button onclick="exportComputerBoard()" class="btn btn-light">Exportar mapa de la computadora</button>
     </div>
   </div>
 

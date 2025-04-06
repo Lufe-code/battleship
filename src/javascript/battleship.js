@@ -270,6 +270,9 @@ function handlePlayerTurn(e) {
 
   if (allShipsSunk(computerBoard)) {
     alert(`¡Ganaste!\nPuntaje final: ${playerScore}`);
+    const nombre = document.getElementById('playerName').value;
+    const pais = document.getElementById('playerCountry').value;
+    enviarPuntajeAlServidor(nombre, pais, playerScore);
     return;
   }
 
@@ -316,16 +319,9 @@ function computerTurn() {
 
   if (allShipsSunk(playerBoard)) {
     alert(`¡Perdiste! La computadora hundió todos tus barcos.\nTu puntaje final fue: ${playerScore}`);
-  }
-  
-  if (playerBoard[row][col] === 'S') {
-    playerBoard[row][col] = 'X';
-  
-    if (checkIfShipSunk(playerBoard, playerShips, row, col)) {
-      alert('¡La computadora hundió uno de tus barcos!');
-    } else {
-      alert('¡La computadora acertó en uno de tus barcos!');
-    }
+    const nombre = document.getElementById('playerName').value;
+    const pais = document.getElementById('playerCountry').value;
+    enviarPuntajeAlServidor(nombre, pais, playerScore);
   }
   
 }
@@ -436,3 +432,59 @@ function allShipsSunk(board) {
 document.addEventListener('DOMContentLoaded', () => {
   cargarPaises();
 });
+
+// enviar datos al backend
+async function enviarPuntajeAlServidor(nombre, pais, puntaje) {
+  try {
+    const response = await fetch('http://127.0.0.1:5000/countries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre, pais, puntaje })
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al enviar el puntaje');
+    }
+
+    console.log('✅ Puntaje enviado correctamente');
+    await obtenerRankingYMostrar();  // Actualiza el ranking después de enviar
+  } catch (error) {
+    console.error('❌ Error al enviar puntaje:', error);
+  }
+}
+
+async function obtenerRankingYMostrar() {
+  try {
+    const response = await fetch('/api/ranking');
+    if (!response.ok) throw new Error('No se pudo obtener el ranking');
+
+    const ranking = await response.json();
+    const tabla = document.getElementById('rankingTabla');
+    tabla.innerHTML = '';
+
+    // Encabezados
+    const encabezado = document.createElement('tr');
+    encabezado.innerHTML = `
+      <th>Posición</th>
+      <th>Nombre</th>
+      <th>País</th>
+      <th>Puntaje</th>
+    `;
+    tabla.appendChild(encabezado);
+
+    // Filas
+    ranking.forEach((jugador, index) => {
+      const fila = document.createElement('tr');
+      fila.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${jugador.nombre}</td>
+        <td>🇨🇺 ${jugador.pais}</td>
+        <td>${jugador.puntaje}</td>
+      `;
+      tabla.appendChild(fila);
+    });
+
+  } catch (error) {
+    console.error('Error al obtener el ranking:', error);
+  }
+}

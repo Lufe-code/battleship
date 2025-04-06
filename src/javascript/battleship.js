@@ -322,8 +322,19 @@ function handlePlayerTurn(e) {
     if (checkIfShipSunk(computerShips, row, col)) {
       notifications.success('¡Hundiste un barco enemigo!');
     } else {
-      notifications.success('¡Impacto!');
+      notifications.success('¡Impacto! Puedes disparar de nuevo.');
     }
+
+    renderBoard(enemyVisibleBoard, 'enemyBoard', handlePlayerTurn);
+
+    // Verifica si ya ganó antes de permitir otro disparo
+    if (allShipsSunk(computerBoard)) {
+      notifications.success(`¡Ganaste!\nPuntaje final: ${playerScore}`);
+      return;
+    }
+
+    // 👇 No pasamos el turno. El jugador puede seguir disparando.
+    return;
 
   } else {
     // ❌ Fallo: comprobar si fue cerca de un barco
@@ -336,19 +347,21 @@ function handlePlayerTurn(e) {
     }
 
     enemyVisibleBoard[row][col] = 'O';
+
+    renderBoard(enemyVisibleBoard, 'enemyBoard', handlePlayerTurn);
+
+    if (allShipsSunk(computerBoard)) {
+      notifications.success(`¡Ganaste!\nPuntaje final: ${playerScore}`);
+      return;
+    }
+
+    // 👇 Falló, ahora sí pasa el turno a la computadora
+    setTimeout(() => {
+      computerTurn();
+    }, 500);
   }
-
-  renderBoard(enemyVisibleBoard, 'enemyBoard', handlePlayerTurn);
-
-  if (allShipsSunk(computerBoard)) {
-    notifications.success(`¡Ganaste!\nPuntaje final: ${playerScore}`);
-    return;
-  }
-
-  setTimeout(() => {
-    computerTurn();
-  }, 500);
 }
+
 
 
 /*
@@ -365,42 +378,49 @@ Actualiza el tablero del jugador.
 Revisa si la computadora ganó.
 */
 function computerTurn() {
-  let row, col;
-  do {
-    row = Math.floor(Math.random() * size);
-    col = Math.floor(Math.random() * size);
-  } while (playerBoard[row][col] === 'X' || playerBoard[row][col] === 'O');
+  function makeComputerShot() {
+    let row, col;
+    do {
+      row = Math.floor(Math.random() * size);
+      col = Math.floor(Math.random() * size);
+    } while (playerBoard[row][col] === 'X' || playerBoard[row][col] === 'O');
 
-  if (playerBoard[row][col] === 'S') {
-    playerBoard[row][col] = 'X';
+    if (playerBoard[row][col] === 'S') {
+      playerBoard[row][col] = 'X';
 
-    if (checkIfShipSunk(playerShips, row, col)) {
-      notifications.error('¡La computadora hundió uno de tus barcos!');
+      if (checkIfShipSunk(playerShips, row, col)) {
+        notifications.error('¡La computadora hundió uno de tus barcos!');
+      } else {
+        notifications.warning('¡La computadora acertó en uno de tus barcos!');
+      }
+
+      renderBoard(playerBoard, 'playerBoard', null, true);
+
+      if (allShipsSunk(playerBoard)) {
+        notifications.error(`¡Perdiste! La computadora hundió todos tus barcos.\nTu puntaje final fue: ${playerScore}`);
+        return;
+      }
+
+      // 👇 La computadora acertó, puede volver a disparar
+      setTimeout(makeComputerShot, 500);
+
     } else {
-      notifications.warning('¡La computadora acertó en uno de tus barcos!');
-    }
-  } else {
-    playerBoard[row][col] = 'O';
-    notifications.info('La computadora falló.');
-  }
+      playerBoard[row][col] = 'O';
+      notifications.info('La computadora falló.');
 
-  renderBoard(playerBoard, 'playerBoard', null, true);
+      renderBoard(playerBoard, 'playerBoard', null, true);
 
-  if (allShipsSunk(playerBoard)) {
-    notifications.error(`¡Perdiste! La computadora hundió todos tus barcos.\nTu puntaje final fue: ${playerScore}`);
-  }
-  
-  if (playerBoard[row][col] === 'S') {
-    playerBoard[row][col] = 'X';
-  
-    if (checkIfShipSunk(playerBoard, playerShips, row, col)) {
-      notifications.error('¡La computadora hundió uno de tus barcos!');
-    } else {
-      notifications.warning('¡La computadora acertó en uno de tus barcos!');
+      if (allShipsSunk(playerBoard)) {
+        notifications.error(`¡Perdiste! La computadora hundió todos tus barcos.\nTu puntaje final fue: ${playerScore}`);
+      }
+
+      // 👇 Falló, termina el turno de la computadora
     }
   }
-  
+
+  makeComputerShot(); // 👈 Llamada inicial
 }
+
 
 // verifica si se ha destruido un barco
 function checkIfShipSunk(shipList, row, col) {

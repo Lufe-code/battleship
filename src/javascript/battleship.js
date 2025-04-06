@@ -20,6 +20,77 @@ const climasPorUbicacion = {
   "Océano Índico": "🌦️ Lluvias dispersas y humedad alta, 27°C"
 };
 
+// Sistema de notificaciones mejorado
+const notifications = {
+  container: null,
+  
+  // Inicializa el contenedor de notificaciones
+  init() {
+    // Crear el contenedor si no existe
+    if (!document.getElementById('notification-container')) {
+      document.body.insertAdjacentHTML('beforeend', '<div id="notification-container"></div>');
+    }
+    this.container = document.getElementById('notification-container');
+  },
+  
+  // Muestra una notificación
+  show(message, type = 'info', duration = 5000) {
+    if (!this.container) this.init();
+    
+    const id = Date.now();
+    const html = `
+      <div class="notification ${type}" data-id="${id}">
+        ${message}
+        <div class="notification-progress"></div>
+      </div>
+    `;
+    
+    this.container.insertAdjacentHTML('beforeend', html);
+    const notificationEl = this.container.querySelector(`[data-id="${id}"]`);
+    
+    // Establecer la duración de la animación
+    const progressEl = notificationEl.querySelector('.notification-progress');
+    progressEl.style.animation = `shrink ${duration/1000}s linear forwards`;
+    
+    // Eliminar la notificación después del tiempo especificado
+    setTimeout(() => {
+      this.remove(id);
+    }, duration);
+    
+    return id;
+  },
+  
+  // Elimina una notificación
+  remove(id) {
+    const notification = this.container.querySelector(`[data-id="${id}"]`);
+    if (notification) {
+      notification.style.opacity = '0';
+      notification.style.transform = 'translateX(100%)';
+      notification.style.transition = 'all 0.3s ease-out';
+      
+      setTimeout(() => {
+        notification.remove();
+      }, 300);
+    }
+  },
+  
+  // Métodos de conveniencia para diferentes tipos de notificaciones
+  success(message, duration) {
+    return this.show(message, 'success', duration);
+  },
+  
+  error(message, duration) {
+    return this.show(message, 'error', duration);
+  },
+  
+  info(message, duration) {
+    return this.show(message, 'info', duration);
+  },
+  
+  warning(message, duration) {
+    return this.show(message, 'warning', duration);
+  }
+};
 
 function createBoard(size) {  // crea la matriz para el juego
   return Array.from({ length: size }, () => Array(size).fill('~'));
@@ -71,13 +142,13 @@ function setupPlayerBoard() {
   actualizarNombreJugador();
   size = parseInt(document.getElementById('boardSize').value);
   if (isNaN(size) || size < MIN_SIZE || size > MAX_SIZE) {
-    alert(`El tamaño debe ser entre ${MIN_SIZE} y ${MAX_SIZE}`);
+    notifications.error(`El tamaño debe ser entre ${MIN_SIZE} y ${MAX_SIZE}`);
     return;
   }
   playerBoard = createBoard(size);
   renderBoard(playerBoard, 'playerBoard', handleShipPlacement, true);
   document.getElementById('startBtn').disabled = true;
-  alert(`Coloca tus barcos (tamaño: ${shipsToPlace[currentShip]}). Da clic en la dirección (horizontal). Usa doble clic para cambiar la dirección.`);
+  notifications.info(`Coloca tus barcos (tamaño: ${shipsToPlace[currentShip]}). Da clic en la dirección (horizontal). Usa doble clic para cambiar la dirección.`);
 }
 
 /* 
@@ -98,21 +169,21 @@ function handleShipPlacement(e) {
     placeShip(playerBoard, row, col, shipLen, placingDirection, playerShips);
     currentShip++;
     if (currentShip < shipsToPlace.length) {
-      alert(`Siguiente barco (tamaño: ${shipsToPlace[currentShip]})`);
+      notifications.info(`Siguiente barco (tamaño: ${shipsToPlace[currentShip]})`);
     } else {
       document.getElementById('startBtn').disabled = false;
-      alert('¡Todos los barcos colocados! Listo para jugar.');
+      notifications.success('¡Todos los barcos colocados! Listo para jugar.');
     }
     renderBoard(playerBoard, 'playerBoard', handleShipPlacement, true);
   } else {
-    alert('No se puede colocar el barco aquí.');
+    notifications.error('No se puede colocar el barco aquí.');
   }
 }
 
 // crea el evento con doble cilc para dar vuelta a los barcos
 document.getElementById('playerBoard').addEventListener('dblclick', () => {
   placingDirection = placingDirection === 'horizontal' ? 'vertical' : 'horizontal';
-  alert(`Dirección cambiada a: ${placingDirection}`);
+  notifications.info(`Dirección cambiada a: ${placingDirection}`);
 });
 
 // Verifica si el barco cabe en la posición y dirección dadas sin chocar con otro ni salirse del tablero.
@@ -196,9 +267,10 @@ function startGame() {
   const name = document.getElementById('playerName').value.trim();
   const country = document.getElementById('playerCountry').value;
   const location = document.getElementById('playerLocation').value.trim();
+  const climaInfo = document.getElementById('climaInfo');
 
   if (!(name && country && location)) {
-    alert('Por favor, completa tu nombre, país y ubicación antes de comenzar.');
+    notifications.error('Por favor, completa tu nombre, país y ubicación antes de comenzar.');
     return;
   }
   else{
@@ -238,7 +310,7 @@ function handlePlayerTurn(e) {
   const col = parseInt(e.target.dataset.col);
 
   if (enemyVisibleBoard[row][col] !== '~') {
-    alert('Ya atacaste esta posición.');
+    notifications.warning('Ya atacaste esta posición.');
     return;
   }
 
@@ -248,19 +320,19 @@ function handlePlayerTurn(e) {
     playerScore += 10; // ✅ Acierto = +10 puntos
 
     if (checkIfShipSunk(computerShips, row, col)) {
-      alert('¡Hundiste un barco enemigo!');
+      notifications.success('¡Hundiste un barco enemigo!');
     } else {
-      alert('¡Impacto!');
+      notifications.success('¡Impacto!');
     }
 
   } else {
     // ❌ Fallo: comprobar si fue cerca de un barco
     if (isNearShip(computerBoard, row, col)) {
       playerScore -= 3;
-      alert('Casi le das... pero fue un fallo. (-3 puntos)');
+      notifications.warning('Casi le das... pero fue un fallo. (-3 puntos)');
     } else {
       playerScore -= 1;
-      alert('Agua. (-1 punto)');
+      notifications.info('Agua. (-1 punto)');
     }
 
     enemyVisibleBoard[row][col] = 'O';
@@ -269,10 +341,7 @@ function handlePlayerTurn(e) {
   renderBoard(enemyVisibleBoard, 'enemyBoard', handlePlayerTurn);
 
   if (allShipsSunk(computerBoard)) {
-    alert(`¡Ganaste!\nPuntaje final: ${playerScore}`);
-    const nombre = document.getElementById('playerName').value;
-    const pais = document.getElementById('playerCountry').value;
-    enviarPuntajeAlServidor(nombre, pais, playerScore);
+    notifications.success(`¡Ganaste!\nPuntaje final: ${playerScore}`);
     return;
   }
 
@@ -306,22 +375,29 @@ function computerTurn() {
     playerBoard[row][col] = 'X';
 
     if (checkIfShipSunk(playerShips, row, col)) {
-      alert('¡La computadora hundió uno de tus barcos!');
+      notifications.error('¡La computadora hundió uno de tus barcos!');
     } else {
-      alert('¡La computadora acertó en uno de tus barcos!');
+      notifications.warning('¡La computadora acertó en uno de tus barcos!');
     }
   } else {
     playerBoard[row][col] = 'O';
-    alert('La computadora falló.');
+    notifications.info('La computadora falló.');
   }
 
   renderBoard(playerBoard, 'playerBoard', null, true);
 
   if (allShipsSunk(playerBoard)) {
-    alert(`¡Perdiste! La computadora hundió todos tus barcos.\nTu puntaje final fue: ${playerScore}`);
-    const nombre = document.getElementById('playerName').value;
-    const pais = document.getElementById('playerCountry').value;
-    enviarPuntajeAlServidor(nombre, pais, playerScore);
+    notifications.error(`¡Perdiste! La computadora hundió todos tus barcos.\nTu puntaje final fue: ${playerScore}`);
+  }
+  
+  if (playerBoard[row][col] === 'S') {
+    playerBoard[row][col] = 'X';
+  
+    if (checkIfShipSunk(playerBoard, playerShips, row, col)) {
+      notifications.error('¡La computadora hundió uno de tus barcos!');
+    } else {
+      notifications.warning('¡La computadora acertó en uno de tus barcos!');
+    }
   }
   
 }
@@ -431,60 +507,6 @@ function allShipsSunk(board) {
 
 document.addEventListener('DOMContentLoaded', () => {
   cargarPaises();
+  // Inicializar el sistema de notificaciones
+  notifications.init();
 });
-
-// enviar datos al backend
-async function enviarPuntajeAlServidor(nombre, pais, puntaje) {
-  try {
-    const response = await fetch('http://127.0.0.1:5000/countries', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nombre, pais, puntaje })
-    });
-
-    if (!response.ok) {
-      throw new Error('Error al enviar el puntaje');
-    }
-
-    console.log('✅ Puntaje enviado correctamente');
-    await obtenerRankingYMostrar();  // Actualiza el ranking después de enviar
-  } catch (error) {
-    console.error('❌ Error al enviar puntaje:', error);
-  }
-}
-
-async function obtenerRankingYMostrar() {
-  try {
-    const response = await fetch('/api/ranking');
-    if (!response.ok) throw new Error('No se pudo obtener el ranking');
-
-    const ranking = await response.json();
-    const tabla = document.getElementById('rankingTabla');
-    tabla.innerHTML = '';
-
-    // Encabezados
-    const encabezado = document.createElement('tr');
-    encabezado.innerHTML = `
-      <th>Posición</th>
-      <th>Nombre</th>
-      <th>País</th>
-      <th>Puntaje</th>
-    `;
-    tabla.appendChild(encabezado);
-
-    // Filas
-    ranking.forEach((jugador, index) => {
-      const fila = document.createElement('tr');
-      fila.innerHTML = `
-        <td>${index + 1}</td>
-        <td>${jugador.nombre}</td>
-        <td>🇨🇺 ${jugador.pais}</td>
-        <td>${jugador.puntaje}</td>
-      `;
-      tabla.appendChild(fila);
-    });
-
-  } catch (error) {
-    console.error('Error al obtener el ranking:', error);
-  }
-}
